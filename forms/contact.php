@@ -1,41 +1,58 @@
 <?php
-  /**
-  * Requires the "PHP Email Form" library
-  * The "PHP Email Form" library is available only in the pro version of the template
-  * The library should be uploaded to: vendor/php-email-form/php-email-form.php
-  * For more info and help: https://bootstrapmade.com/php-email-form/
-  */
 
-  // Replace contact@example.com with your real receiving email address
-  $receiving_email_address = 'yaseenahm324@gmail.com';
+use PHPMailer\PHPMailer\PHPMailer; 
+use PHPMailer\PHPMailer\SMTP; 
+use PHPMailer\PHPMailer\Exception; 
 
-  if( file_exists($php_email_form = '../assets/vendor/php-email-form/php-email-form.php' )) {
-    include( $php_email_form );
-  } else {
-    die( 'Unable to load the "PHP Email Form" Library!');
-  }
+// Include PHPMailer library files 
+require 'PHPMailer/Exception.php'; 
+require 'PHPMailer/PHPMailer.php'; 
+require 'PHPMailer/SMTP.php';
 
-  $contact = new PHP_Email_Form;
-  $contact->ajax = true;
-  
-  $contact->to = $receiving_email_address;
-  $contact->from_name = $_POST['name'];
-  $contact->from_email = $_POST['email'];
-  $contact->subject = $_POST['subject'];
+// Email configuration
+$receiving_email_address = 'yaseenahm324@gmail.com';
 
-  // Uncomment below code if you want to use SMTP to send emails. You need to enter your correct SMTP credentials
-  /*
-  $contact->smtp = array(
-    'host' => 'example.com',
-    'username' => 'example',
-    'password' => 'pass',
-    'port' => '587'
-  );
-  */
+if (isset($_POST['email'])) {
+    $from_name = $_POST['name'];
+    $from_email = $_POST['email'];
+    $subject = $_POST['subject'];
+    $message = $_POST['message'];
 
-  $contact->add_message( $_POST['name'], 'From');
-  $contact->add_message( $_POST['email'], 'Email');
-  $contact->add_message( $_POST['message'], 'Message', 10);
+    $mail = new PHPMailer();
+    $mail->isSMTP();
+    $mail->SMTPDebug = 0; // Set to 1 or 2 for debugging
+    $mail->SMTPAuth = true;
+    $mail->SMTPSecure = 'ssl';
+    $mail->Host = 'smtp.gmail.com';
+    $mail->Port = 465;
+    $mail->Username = 'rosekhn0340@gmail.com';
+    $mail->Password = 'agcbgbcznjakzczs';
 
-  echo $contact->send();
+    $mail->setFrom($from_email, $from_name);
+    $mail->addReplyTo($from_email);
+    $mail->addAddress($receiving_email_address);
+    $mail->isHTML(true);
+    $mail->Subject = "Contact Us Message (Portfolio): " . $subject;
+    $mail->Body = "
+        <html>
+            <head><title>$subject</title></head>
+            <body>
+                <h2>Message from $from_name</h2>
+                <p><strong>Email:</strong> $from_email</p>
+                <p><strong>Subject:</strong> $subject</p>
+                <p><strong>Message:</strong></p>
+                <p>$message</p>
+            </body>
+        </html>
+    ";
+
+    // Send the email and handle response
+    if (!$mail->send()) {
+        echo 'Error: ' . $mail->ErrorInfo;
+    } else {
+        echo 'OK'; // Return "OK" if successful for JavaScript handling
+    }
+}
+
+exit;
 ?>
